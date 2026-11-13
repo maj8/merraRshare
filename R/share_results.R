@@ -112,6 +112,7 @@ convert_item <- function(x, interactive = TRUE) {
     }
     return(plot_to_img(x))
   }
+  if (inherits(x, "leaflet")) return(size_widget(fix_basemap(x)))
   if (inherits(x, "htmlwidget")) return(size_widget(x))
   if (inherits(x, "recordedplot")) return(plot_to_img(x))
   if (is.data.frame(x)) return(table_html(x))
@@ -119,6 +120,47 @@ convert_item <- function(x, interactive = TRUE) {
   if (is.character(x)) return(text_to_html(x))
   stop("objects of class '", class(x)[1], "' can't be shared yet. ",
        "Supported: ggplot, htmlwidget (plotly, leaflet, DT...), data frame, recordPlot(), text.")
+}
+
+# OpenStreetMap's own tile servers block maps opened from a file (they get no
+# website address with the request), so swap them for a basemap that allows it.
+# Choose with options(merraRshare.basemap = "carto" | "esri-ocean" | "keep").
+basemaps <- list(
+  carto = list(
+    url = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+    subdomains = "abcd", maxZoom = 20,
+    attribution = paste0('&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> ',
+                         'contributors &copy; <a href="https://carto.com/attributions">CARTO</a>')),
+  `esri-ocean` = list(
+    url = "https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}",
+    subdomains = "abc", maxZoom = 13,
+    attribution = "Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri")
+)
+
+fix_basemap <- function(m) {
+  choice <- getOption("merraRshare.basemap", "carto")
+  if (identical(choice, "keep") || is.null(basemaps[[choice]])) return(m)
+  b <- basemaps[[choice]]
+  calls <- m$x$calls
+  for (i in seq_along(calls)) {
+    cl <- calls[[i]]
+    is_osm <- (identical(cl$method, "addTiles") && is.character(cl$args[[1]]) &&
+                 grepl("tile\\.openstreetmap\\.org", cl$args[[1]])) ||
+              (identical(cl$method, "addProviderTiles") && is.character(cl$args[[1]]) &&
+                 grepl("^OpenStreetMap", cl$args[[1]]))
+    if (!is_osm) next
+    opts <- if (length(cl$args) >= 4 && is.list(cl$args[[4]])) cl$args[[4]] else list()
+    opts$subdomains <- b$subdomains
+    opts$maxZoom <- b$maxZoom
+    opts$attribution <- b$attribution
+    calls[[i]] <- list(method = "addTiles",
+                       args = list(b$url,
+                                   if (length(cl$args) >= 2) cl$args[[2]] else NULL,
+                                   if (length(cl$args) >= 3) cl$args[[3]] else NULL,
+                                   opts))
+  }
+  m$x$calls <- calls
+  m
 }
 
 size_widget <- function(w) {

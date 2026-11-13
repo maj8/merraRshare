@@ -16,7 +16,7 @@ and keeps interactive zoom, hover and table search. No server, no Shiny.
 2. Install merraRshare from the file you were sent:
 
    ```r
-   install.packages("path/to/merraRshare_0.1.3.tar.gz", repos = NULL, type = "source")
+   install.packages("path/to/merraRshare_0.1.4.tar.gz", repos = NULL, type = "source")
    ```
 
 3. Restart RStudio. **Share results** now appears in the **Addins** menu
@@ -84,6 +84,10 @@ Names in quotes become the section headings.
   of any table. Don't share confidential or unpublished data this way.
 - Big tables make big files. Summarise first if you have tens of thousands of rows.
 - Map backgrounds load from the internet when the page is opened; everything
-  else works offline.
+  else works offline. OpenStreetMap's own servers refuse maps opened from a
+  file ("Access blocked"), so merraRshare automatically swaps them for the
+  CARTO basemap. For a marine-style chart background use
+  `options(merraRshare.basemap = "esri-ocean")`; to leave maps untouched use
+  `options(merraRshare.basemap = "keep")`.
 - A typical page with a chart, a map and a table is 3–5 MB, mostly the
   JavaScript that makes them interactive. Fine for email and websites.
