@@ -1,0 +1,4 @@
+Name: Share results
+Description: Pick plots, maps and tables from your workspace and save them as one shareable HTML page.
+Binding: share_results_addin
+Interactive: true

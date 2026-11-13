@@ -1,0 +1,26 @@
+Package: merraRshare
+Type: Package
+Title: Share R Results as a Single Self-Contained HTML Page
+Version: 0.1.0
+Authors@R: person("CRMG Ltd", role = c("aut", "cre"), email = "maj8merra@gmail.com")
+Description: Turns plots, maps, tables and notes made in R into one
+    self-contained HTML file that opens by double-clicking, can be emailed
+    or uploaded to a website, and keeps interactive zoom, hover and table
+    search. Includes an RStudio addin ("Share results") so no code is needed.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends: R (>= 4.0)
+Imports:
+    htmltools,
+    base64enc,
+    shiny,
+    miniUI,
+    utils,
+    tools
+Suggests:
+    ggplot2,
+    plotly,
+    DT,
+    leaflet,
+    rstudioapi
+RoxygenNote: 7.3.1
