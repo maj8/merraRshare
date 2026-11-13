@@ -16,8 +16,9 @@
 #' @param subtitle Optional line under the title.
 #' @param author Optional author name shown in the header.
 #' @param intro Optional introductory text shown above the first item.
-#' @param file Output file. Defaults to a name made from the title, saved in
-#'   the working directory.
+#' @param file Output file. Defaults to a name made from the title. A bare
+#'   file name is saved in your Downloads folder (see [save_folder()]); give a
+#'   path with a folder in it to save somewhere else.
 #' @param interactive Convert ggplots to interactive plotly charts.
 #' @param open Open the finished page in the web browser.
 #' @param overwrite Overwrite `file` if it exists. If `FALSE`, a number is
@@ -81,6 +82,9 @@ share_results <- function(..., title = "Results", subtitle = NULL,
 
   if (is.null(file) || !nzchar(file)) file <- paste0(slugify(title), ".html")
   if (!grepl("\\.html?$", file, ignore.case = TRUE)) file <- paste0(file, ".html")
+  # A bare file name goes in the save folder (Downloads unless changed);
+  # a name with a folder in it is used as given.
+  if (identical(basename(file), file)) file <- file.path(save_folder(), file)
   if (!overwrite) file <- unique_path(file)
 
   # Build in a temporary folder so no "lib" folder is left next to the output.
@@ -184,6 +188,24 @@ text_to_html <- function(x) {
 }
 
 # ---- helpers -------------------------------------------------------------------
+
+#' Where merraRshare saves pages
+#'
+#' Pages are saved in your Downloads folder unless you choose another one with
+#' `options(merraRshare.folder = "C:/path/to/folder")` (put that line in your
+#' .Rprofile to make it permanent). If there is no Downloads folder, the
+#' working directory is used.
+#'
+#' @return The folder path.
+#' @export
+save_folder <- function() {
+  opt <- getOption("merraRshare.folder")
+  if (!is.null(opt) && nzchar(opt)) return(path.expand(opt))
+  home <- if (.Platform$OS.type == "windows") Sys.getenv("USERPROFILE") else path.expand("~")
+  downloads <- file.path(home, "Downloads")
+  if (nzchar(home) && dir.exists(downloads)) return(normalizePath(downloads, winslash = "/"))
+  getwd()
+}
 
 slugify <- function(x) {
   s <- tolower(iconv(x, to = "ASCII//TRANSLIT", sub = ""))

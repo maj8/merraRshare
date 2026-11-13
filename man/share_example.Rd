@@ -4,13 +4,10 @@
 \alias{share_example}
 \title{Make an example page to see what merraRshare does}
 \usage{
-share_example(
-  file = file.path(tempdir(), "merraRshare-example.html"),
-  open = base::interactive()
-)
+share_example(file = "merraRshare-example.html", open = base::interactive())
 }
 \arguments{
-\item{file}{Where to save the example page.}
+\item{file}{Where to save the example page (Downloads by default).}
 
 \item{open}{Open it in the web browser.}
 }

@@ -7,11 +7,11 @@
 #' Needs the ggplot2 package; the map needs leaflet and the interactive
 #' chart needs plotly (they are skipped if not installed).
 #'
-#' @param file Where to save the example page.
+#' @param file Where to save the example page (Downloads by default).
 #' @param open Open it in the web browser.
 #' @return The path to the HTML file, invisibly.
 #' @export
-share_example <- function(file = file.path(tempdir(), "merraRshare-example.html"),
+share_example <- function(file = "merraRshare-example.html",
                           open = base::interactive()) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("The example needs ggplot2: install.packages(\"ggplot2\")", call. = FALSE)

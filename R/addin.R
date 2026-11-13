@@ -73,7 +73,7 @@ addin_app <- function(found, env) {
     shiny::checkboxInput("interactive", "Make ggplot charts interactive (zoom and hover)", TRUE,
                          width = "100%"),
     shiny::textInput("file", "Save as", width = "100%", placeholder = "Leave blank to name it after the title"),
-    shiny::helpText(paste("Saved in:", getwd()))
+    shiny::helpText(paste("Saved in:", save_folder()))
   )
 
   server <- function(input, output, session) {

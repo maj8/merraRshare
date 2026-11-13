@@ -16,7 +16,7 @@ and keeps interactive zoom, hover and table search. No server, no Shiny.
 2. Install merraRshare from the file you were sent:
 
    ```r
-   install.packages("path/to/merraRshare_0.1.2.tar.gz", repos = NULL, type = "source")
+   install.packages("path/to/merraRshare_0.1.3.tar.gz", repos = NULL, type = "source")
    ```
 
 3. Restart RStudio. **Share results** now appears in the **Addins** menu
@@ -44,7 +44,7 @@ copy it for your own results.
 2. **Addins → Share results.**
 3. Type a title, then click the items to include **in the order you want them**.
    Edit the section headings if you like.
-4. Click **Create page**. The file is saved in your working folder and opens in
+4. Click **Create page**. The file is saved in your **Downloads** folder and opens in
    your browser.
 
 ## Using it — one line of code
@@ -75,6 +75,10 @@ Names in quotes become the section headings.
 | text in quotes | paragraphs (leave a blank line between paragraphs) |
 
 ## Good to know
+
+- Pages are saved in your **Downloads** folder. To use a different folder, run
+  `options(merraRshare.folder = "C:/path/to/folder")` (add it to your
+  `.Rprofile` to make it stick), or give a full path: `file = "C:/Reports/catch.html"`.
 
 - **Everything in the file can be seen by whoever gets it**, including all rows
   of any table. Don't share confidential or unpublished data this way.

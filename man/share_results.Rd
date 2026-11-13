@@ -27,8 +27,9 @@ share_results(
 
 \item{intro}{Optional introductory text shown above the first item.}
 
-\item{file}{Output file. Defaults to a name made from the title, saved in
-the working directory.}
+\item{file}{Output file. Defaults to a name made from the title. A bare
+file name is saved in your Downloads folder (see [save_folder()]); give a
+path with a folder in it to save somewhere else.}
 
 \item{interactive}{Convert ggplots to interactive plotly charts.}
 
