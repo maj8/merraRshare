@@ -124,33 +124,71 @@ convert_item <- function(x, interactive = TRUE) {
 
 # OpenStreetMap's own tile servers block maps opened from a file (they get no
 # website address with the request), so swap them for a basemap that allows it.
-# Choose with options(merraRshare.basemap = "carto" | "esri-ocean" | "keep").
+# Choose with options(merraRshare.basemap = "esri-topo" | "esri-ocean" |
+# "esri-street" | "carto" | "keep"). CARTO needs a free key:
+# options(merraRshare.carto_key = "...") from carto.com/basemaps/apikey
+esri_url <- function(service) {
+  paste0("https://server.arcgisonline.com/ArcGIS/rest/services/", service,
+         "/MapServer/tile/{z}/{y}/{x}")
+}
 basemaps <- list(
-  carto = list(
-    url = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-    subdomains = "abcd", maxZoom = 20,
-    attribution = paste0('&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> ',
-                         'contributors &copy; <a href="https://carto.com/attributions">CARTO</a>')),
+  `esri-topo` = list(
+    url = esri_url("World_Topo_Map"), maxZoom = 19,
+    attribution = paste("Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC,",
+                        "USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan,",
+                        "METI, Esri China (Hong Kong), and the GIS User Community")),
   `esri-ocean` = list(
-    url = "https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}",
-    subdomains = "abc", maxZoom = 13,
-    attribution = "Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri")
+    url = esri_url("Ocean/World_Ocean_Base"), maxZoom = 13,
+    attribution = "Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri"),
+  `esri-street` = list(
+    url = esri_url("World_Street_Map"), maxZoom = 19,
+    attribution = "Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012"),
+  carto = list(
+    url = "https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=",
+    maxZoom = 20,
+    attribution = paste0('&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> ',
+                         'contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'))
 )
 
-fix_basemap <- function(m) {
-  choice <- getOption("merraRshare.basemap", "carto")
-  if (identical(choice, "keep") || is.null(basemaps[[choice]])) return(m)
+choose_basemap <- function() {
+  choice <- getOption("merraRshare.basemap", "esri-topo")
+  if (identical(choice, "keep")) return(NULL)
+  if (identical(choice, "carto")) {
+    key <- getOption("merraRshare.carto_key", "")
+    if (!nzchar(key)) {
+      warning("CARTO maps need a free API key (carto.com/basemaps/apikey); set ",
+              "options(merraRshare.carto_key = \"...\"). Using the Esri map instead.", call. = FALSE)
+      return(basemaps[["esri-topo"]])
+    }
+    b <- basemaps$carto
+    b$url <- paste0(b$url, utils::URLencode(key, reserved = TRUE))
+    return(b)
+  }
   b <- basemaps[[choice]]
+  if (is.null(b)) {
+    warning("Unknown merraRshare.basemap '", choice, "'; using esri-topo.", call. = FALSE)
+    b <- basemaps[["esri-topo"]]
+  }
+  b
+}
+
+is_osm_call <- function(cl) {
+  url <- if (length(cl$args) >= 1) cl$args[[1]] else NULL
+  is.character(url) && (
+    (identical(cl$method, "addTiles") && grepl("tile\\.openstreetmap\\.org", url)) ||
+    (identical(cl$method, "addProviderTiles") && grepl("^OpenStreetMap", url)))
+}
+
+fix_basemap <- function(m) {
   calls <- m$x$calls
+  if (!any(vapply(calls, is_osm_call, logical(1)))) return(m)
+  b <- choose_basemap()
+  if (is.null(b)) return(m)
   for (i in seq_along(calls)) {
     cl <- calls[[i]]
-    is_osm <- (identical(cl$method, "addTiles") && is.character(cl$args[[1]]) &&
-                 grepl("tile\\.openstreetmap\\.org", cl$args[[1]])) ||
-              (identical(cl$method, "addProviderTiles") && is.character(cl$args[[1]]) &&
-                 grepl("^OpenStreetMap", cl$args[[1]]))
-    if (!is_osm) next
+    if (!is_osm_call(cl)) next
     opts <- if (length(cl$args) >= 4 && is.list(cl$args[[4]])) cl$args[[4]] else list()
-    opts$subdomains <- b$subdomains
+    opts$subdomains <- NULL
     opts$maxZoom <- b$maxZoom
     opts$attribution <- b$attribution
     calls[[i]] <- list(method = "addTiles",
