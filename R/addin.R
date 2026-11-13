@@ -49,30 +49,31 @@ pretty_heading <- function(name) {
 addin_app <- function(found, env) {
   choices <- stats::setNames(names(found), sprintf("%s  \u2014  %s", names(found), found))
 
-  ui <- miniUI::miniPage(
-    miniUI::gadgetTitleBar(
-      "Share results",
-      right = miniUI::miniTitleBarButton("done", "Create page", primary = TRUE)
+  ui <- shiny::fluidPage(
+    shiny::tags$style(shiny::HTML(paste(
+      ".bar{display:flex;align-items:center;justify-content:space-between;",
+      "border-bottom:1px solid #ddd;margin:0 -15px 14px;padding:8px 15px;background:#f5f5f5}",
+      ".bar h4{margin:0}.form-group{margin-bottom:12px}.help-block{margin-top:2px}"))),
+    shiny::div(class = "bar",
+      shiny::actionButton("cancel", "Cancel"),
+      shiny::h4("Share results"),
+      shiny::actionButton("done", "Create page", class = "btn-primary")
     ),
-    miniUI::miniContentPanel(
-      shiny::tags$style(".help-block{margin-top:2px} .form-group{margin-bottom:12px}"),
-      shiny::textInput("title", "Page title", value = "Results", width = "100%"),
-      shiny::fillRow(
-        height = "70px",
-        shiny::textInput("subtitle", "Subtitle (optional)", width = "95%"),
-        shiny::textInput("author", "Author (optional)", width = "100%")
-      ),
-      shiny::textAreaInput("intro", "Introduction (optional)", width = "100%", rows = 3,
-                           placeholder = "A sentence or two explaining what this page shows."),
-      shiny::selectizeInput("items", "What to include \u2014 click items in the order you want them",
-                            choices = choices, multiple = TRUE, width = "100%",
-                            options = list(placeholder = "Click to choose plots, maps and tables")),
-      shiny::uiOutput("headings"),
-      shiny::checkboxInput("interactive", "Make ggplot charts interactive (zoom and hover)", TRUE,
-                           width = "100%"),
-      shiny::textInput("file", "Save as", width = "100%", placeholder = "Leave blank to name it after the title"),
-      shiny::helpText(paste("Saved in:", getwd()))
-    )
+    shiny::textInput("title", "Page title", value = "Results", width = "100%"),
+    shiny::fluidRow(
+      shiny::column(6, shiny::textInput("subtitle", "Subtitle (optional)", width = "100%")),
+      shiny::column(6, shiny::textInput("author", "Author (optional)", width = "100%"))
+    ),
+    shiny::textAreaInput("intro", "Introduction (optional)", width = "100%", rows = 3,
+                         placeholder = "A sentence or two explaining what this page shows."),
+    shiny::selectizeInput("items", "What to include \u2014 click items in the order you want them",
+                          choices = choices, multiple = TRUE, width = "100%",
+                          options = list(placeholder = "Click to choose plots, maps and tables")),
+    shiny::uiOutput("headings"),
+    shiny::checkboxInput("interactive", "Make ggplot charts interactive (zoom and hover)", TRUE,
+                         width = "100%"),
+    shiny::textInput("file", "Save as", width = "100%", placeholder = "Leave blank to name it after the title"),
+    shiny::helpText(paste("Saved in:", getwd()))
   )
 
   server <- function(input, output, session) {

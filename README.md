@@ -6,17 +6,17 @@ and keeps interactive zoom, hover and table search. No server, no Shiny.
 
 ## Install (once)
 
-1. Make sure these packages are installed (only needed once):
+1. Install the packages it uses (only needed once; paste as one line, and if RStudio
+   offers to restart R first, click **No**):
 
    ```r
-   install.packages(c("htmltools", "htmlwidgets", "base64enc", "shiny", "miniUI",
-                      "ggplot2", "plotly", "DT", "leaflet"))
+   install.packages(c("htmltools", "htmlwidgets", "base64enc", "shiny", "ggplot2", "plotly", "DT", "leaflet"))
    ```
 
 2. Install merraRshare from the file you were sent:
 
    ```r
-   install.packages("path/to/merraRshare_0.1.0.tar.gz", repos = NULL, type = "source")
+   install.packages("path/to/merraRshare_0.1.1.tar.gz", repos = NULL, type = "source")
    ```
 
 3. Restart RStudio. **Share results** now appears in the **Addins** menu
