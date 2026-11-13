@@ -16,11 +16,21 @@ and keeps interactive zoom, hover and table search. No server, no Shiny.
 2. Install merraRshare from the file you were sent:
 
    ```r
-   install.packages("path/to/merraRshare_0.1.1.tar.gz", repos = NULL, type = "source")
+   install.packages("path/to/merraRshare_0.1.2.tar.gz", repos = NULL, type = "source")
    ```
 
 3. Restart RStudio. **Share results** now appears in the **Addins** menu
    (toolbar, top of the RStudio window).
+
+## Try the example first
+
+```r
+merraRshare::share_example()
+```
+
+This makes a demo page from invented creel catch data (chart, map, table and
+notes), opens it in your browser, and prints the code behind it so you can
+copy it for your own results.
 
 ## Using it — no code
 
